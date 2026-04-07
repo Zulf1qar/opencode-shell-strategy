@@ -217,3 +217,45 @@ USE THIS REPO FOR: API backend only
 
 By framing instructions as "Actionable Positive Constraints", you reduce hallucination and improve compliance across all models.
 
+
+
+---
+
+## 8. SLIMURAI Stack — Project-Specific Patterns
+
+### Next.js / Node (ConflictMonitor, ChronicPainApp)
+Always run from inside the project directory on A: drive.
+
+| Action | Command |
+|--------|---------|
+| Dev server | `npm run dev -- --turbo` |
+| Type check | `npx tsc --noEmit` |
+| Lint fix | `npx next lint --fix` |
+| Build | `npm run build` |
+
+Build fails → stop, report exact error, wait. Never auto-fix.
+
+### Prisma + WSL PostgreSQL
+PostgreSQL runs in WSL Ubuntu 24.04. Prisma runs from Windows PowerShell inside the project dir.
+Order matters — always generate before migrate:
+
+```
+npx prisma generate
+npx prisma migrate dev --name <description>
+```
+
+Never run `migrate reset` or `db push --force-reset` without explicit approval.
+WSL PostgreSQL connection string: use `localhost` not `127.0.0.1` in DATABASE_URL.
+
+### Ollama (localhost:11434)
+Models available: glm-4.7-flash:40k, gemma3:12b-8k, llama3.1:8b-8k, mxbai-embed-large
+
+```bash
+# Check running models
+curl -s http://localhost:11434/api/tags
+
+# Test a model
+curl -s http://localhost:11434/api/generate -d "{\"model\":\"glm-4.7-flash:40k\",\"prompt\":\"ping\",\"stream\":false}"
+```
+
+Use `curl -fsSL` for all Ollama API calls — never interactive.
