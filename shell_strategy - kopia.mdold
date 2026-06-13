@@ -1,0 +1,40 @@
+# Shell Non-Interactive Strategy — Windows / PowerShell 7
+
+OpenCode's shell has no TTY. Any command that waits for input hangs until timeout. Environment variables for CI=true, GIT_TERMINAL_PROMPT=0, GIT_PAGER=cat,npm_config_yes=true are auto-set — do not set them again.
+
+## Banned commands (always hang)
+
+Editors: `vim`, `vi`, `nano`, `emacs`, `notepad`, `code`
+Pagers: `less`, `more`, `most`, `pg`, `man`
+Interactive git: `git add -p`, `git rebase -i`, `git commit` without `-m`
+Bare REPLs: `python`, `node`, `irb`, `ghci`, `node`, `py -3.11` (use `-c` or `-e` flag, or a script file)
+Interactive shells: `bash -i`, `zsh -i`
+
+## Non-interactive flags — common cases
+
+NPM: `npm install --yes`, `npm init -y`
+Yarn: `yarn install --non-interactive`
+Bun: `bun init -y`
+APT (WSL): `apt-get install -y pkg`, `apt-get upgrade -y`
+PIP: `pip install --no-input pkg`
+
+Git commit: `git commit -m "msg"`
+Git merge/pull: add `--no-edit`
+Git log/diff: add `--no-pager` or use `-n N` to bound output
+
+rm/cp/mv: use `-f` to force, never `-i`
+unzip: `unzip -o file.zip`
+ssh: `ssh -o BatchMode=yes -o StrictHostKeyChecking=no host`
+curl: `curl -fsSL url`
+wget: `wget -q url`
+
+Docker: never `-it`. For compose: `docker-compose up -d`
+
+## When no flag exists
+
+Echo pipe: `echo "input" | command`
+Last resort: `timeout 30 ./script.sh || echo "Timed out"`
+
+## Rule
+
+If a command might prompt and you cannot find a flag, stop and report — do not run it.
